@@ -5,22 +5,16 @@ app.use(express.json());
 import dotenv from "dotenv";
 dotenv.config();
 
-import axios from 'axios';
+import { toggleLight, setWhiteLight, setColorLight } from "./tuyaCommands.js";
 
-import { TuyaContext } from "@tuya/tuya-connector-nodejs";
+import * as hues from './hues.js';
 
-const tuya = new TuyaContext({
-  baseUrl: "https://openapi.tuyaus.com",
-  accessKey: process.env.CLIENT_ID,
-  secretKey: process.env.CLIENT_SECRET,
-});
+const deskLight = process.env.DEVICE_ID_DESK
+const bedLight = process.env.DEVICE_ID_BED
 
-const deskLight = await tuya.device.detail({
-  device_id: process.env.DEVICE_ID_DESK,
-});
-const bedLight = await tuya.device.detail({
-  device_id: process.env.DEVICE_ID_BED,
-});
+/*toggleLight(deskLight, 10, 1000)
+setWhiteLight(deskLight, 10, 1000)
+setColorLight(deskLight, hues.HUE_ORANGE, 1000, 1000)*/
 
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>");
