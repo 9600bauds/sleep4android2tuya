@@ -1,6 +1,9 @@
 import { TuyaContext } from "@tuya/tuya-connector-nodejs";
 
-const tuya = new TuyaContext({
+import dotenv from "dotenv";
+dotenv.config();
+
+export const tuyaContext = new TuyaContext({
   baseUrl: "https://openapi.tuyaus.com",
   accessKey: process.env.CLIENT_ID,
   secretKey: process.env.CLIENT_SECRET,
@@ -20,7 +23,7 @@ async function sendDeviceCommand(deviceID, commandBody) {
     body: commandBody
   };
 
-  const response = await tuya.request(command);
+  const response = await tuyaContext.request(command);
 
   if (!response.success) {
     console.log("Command failed!\nBody: ", commandBody, "\nResponse: ", response);

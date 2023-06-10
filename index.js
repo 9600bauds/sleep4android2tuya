@@ -5,7 +5,7 @@ app.use(express.json());
 import dotenv from "dotenv";
 dotenv.config();
 
-import { toggleLight, setWhiteLight, setColorLight } from "./tuyaCommands.js";
+import { tuyaContext, toggleLight, setWhiteLight, setColorLight } from "./tuyaCommands.js";
 
 import * as hues from './hues.js';
 
