@@ -3,6 +3,8 @@ import { TuyaContext } from "@tuya/tuya-connector-nodejs";
 import dotenv from "dotenv";
 dotenv.config();
 
+import * as hues from "./hues.js";
+
 export const tuyaContext = new TuyaContext({
   baseUrl: "https://openapi.tuyaus.com",
   accessKey: process.env.CLIENT_ID,
@@ -48,19 +50,21 @@ export async function getDeviceStatus(deviceID) {
  * @param {Object} commandBody - The command body containing the instructions.
  * @returns {Promise} - A promise that resolves when the device command is sent.
  */
-async function sendDeviceCommand(deviceID, commandBody) {
+export async function sendDeviceCommands(deviceID, commands) {
   const command = {
     path: `${basePath}/devices/${deviceID}/commands`,
     method: "POST",
-    body: commandBody,
+    body: {
+      commands: commands,
+    },
   };
 
   const response = await tuyaContext.request(command);
 
   if (!response.success) {
     console.log(
-      "Command failed!\nBody: ",
-      commandBody,
+      "Command failed!\Commands: ",
+      commands,
       "\nResponse: ",
       response
     );
@@ -75,9 +79,9 @@ async function sendDeviceCommand(deviceID, commandBody) {
  * @returns {Promise} - A promise that resolves when the device command is sent.
  */
 export async function toggleLight(deviceID, isLightOn) {
-  return sendDeviceCommand(deviceID, {
-    commands: [{ code: "switch_led", value: isLightOn }],
-  });
+  return sendDeviceCommands(deviceID, [
+    { code: "switch_led", value: isLightOn },
+  ]);
 }
 /**
  * Sets the device to white light mode.
@@ -93,12 +97,12 @@ export async function setWhiteLight(deviceID, brightness, temperature) {
   const roundedBrightness = Math.round(brightness);
   const roundedTemperature = Math.round(temperature);
 
-  return sendDeviceCommand(deviceID, {
-    commands: [
-      { code: "bright_value_v2", value: roundedBrightness },
-      { code: "temp_value_v2", value: roundedTemperature },
-    ],
-  });
+  console.log(roundedBrightness)
+
+  return sendDeviceCommands(deviceID, [
+    { code: "bright_value_v2", value: roundedBrightness },
+    { code: "temp_value_v2", value: roundedTemperature },
+  ]);
 }
 /**
  * Sets the device to colored light mode.
@@ -114,16 +118,33 @@ export async function setColorLight(deviceID, hue, saturation, brightness) {
   const roundedSaturation = Math.round(saturation || 1000);
   const roundedBrightness = Math.round(brightness || 1000);
 
-  return sendDeviceCommand(deviceID, {
-    commands: [
-      {
-        code: "colour_data_v2",
-        value: {
-          h: roundedHue,
-          s: roundedSaturation,
-          v: roundedBrightness,
-        },
+  return sendDeviceCommands(deviceID, [
+    {
+      code: "colour_data_v2",
+      value: {
+        h: roundedHue,
+        s: roundedSaturation,
+        v: roundedBrightness,
       },
-    ],
-  });
+    },
+  ]);
+}
+
+/**
+ * Turns the light off and sets all brightness values to minimum.
+ *
+ * @param {string} deviceID - The ID of the device.
+ * @returns {Promise} - A promise that resolves when the device command is sent.
+ */
+export async function resetLight(deviceID) {
+  return sendDeviceCommands(deviceID, [
+    { code: "switch_led", value: false },
+    { code: "colour_data_v2", value: { h: hues.HUE_ORANGE, s: 1000, v: 10 } },
+    { code: "bright_value_v2 ", value: 10 },
+  ]);
+}
+
+export async function doTheSwap(deviceID1, deviceID2) {
+  resetLight(deviceID2);
+  return setWhiteLight(deviceID1, 10, 10);
 }
