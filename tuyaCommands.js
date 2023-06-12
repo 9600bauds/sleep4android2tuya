@@ -3,7 +3,7 @@ import { TuyaContext } from "@tuya/tuya-connector-nodejs";
 import dotenv from "dotenv";
 dotenv.config();
 
-import * as hues from "./hues.js";
+import * as hues from "./utils/hues.js";
 
 export const tuyaContext = new TuyaContext({
   baseUrl: "https://openapi.tuyaus.com",
@@ -96,8 +96,6 @@ export async function toggleLight(deviceID, isLightOn) {
 export async function setWhiteLight(deviceID, brightness, temperature) {
   const roundedBrightness = Math.round(brightness);
   const roundedTemperature = Math.round(temperature);
-
-  console.log(roundedBrightness)
 
   return sendDeviceCommands(deviceID, [
     { code: "bright_value_v2", value: roundedBrightness },

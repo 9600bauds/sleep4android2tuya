@@ -5,7 +5,7 @@ app.use(express.json());
 import dotenv from "dotenv";
 dotenv.config();
 
-import { doWakeUp } from "./doWakeUp.js";
+import { doWakeUp } from "./routines/doWakeUp.js";
 
 export const deskLight = process.env.DEVICE_ID_DESK;
 export const bedLight = process.env.DEVICE_ID_BED;

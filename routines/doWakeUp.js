@@ -1,13 +1,19 @@
-import * as hues from "./hues.js";
-import { QueuedTransition } from "./QueuedTransition.js";
+import * as hues from "../utils/hues.js";
+import { QueuedTransition } from "../custom_commands/Transition.js";
 import {
   ColoredTransition,
-  WhiteTransition
-} from "./Transition.js";
-import { QueuedCommand } from "./QueuedCommand.js";
-import { QueuedSwap } from "./QueuedSwap.js";
-import { QueuedReset } from "./QueuedReset.js";
-import { busy, taskQueue, bedLight, deskLight, startTaskQueue } from "./index.js";
+  WhiteTransition,
+} from "../custom_commands/Transition.js";
+import { QueuedCommand } from "../custom_commands/Command.js";
+import { QueuedSwap } from "../custom_commands/LightSwap.js";
+import { QueuedReset } from "../custom_commands/LightReset.js";
+import {
+  busy,
+  taskQueue,
+  bedLight,
+  deskLight,
+  startTaskQueue,
+} from "../index.js";
 
 export async function doWakeUp() {
   if (busy()) {
