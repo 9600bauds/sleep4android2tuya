@@ -12,13 +12,13 @@ export class QueuedSwap {
 }
 
 class LightSwap {
-    constructor(deviceID1, deviceID2) {
-        this.deviceID1 = deviceID1;
-        this.deviceID2 = deviceID2;
-      }
+  constructor(deviceID1, deviceID2) {
+    this.deviceID1 = deviceID1;
+    this.deviceID2 = deviceID2;
+  }
 
   async step() {
-    doTheSwap(this.deviceID1, this.deviceID2)
+    doTheSwap(this.deviceID1, this.deviceID2);
     return true;
   }
 }
