@@ -7,7 +7,7 @@ import {
 } from "../index.js";
 import { QueuedReset } from "../custom_commands/LightReset.js";
 
-export async function sleepStart() {
+export async function lighsOff() {
   cancelTask();
   addtoQueue(
     new QueuedReset(bedLight),

@@ -5,9 +5,9 @@ app.use(express.json());
 import dotenv from "dotenv";
 dotenv.config();
 
-import { doWakeUp } from "./routines/doWakeUp.js";
-import { alarmStopped } from "./routines/alarmStopped.js";
-import { sleepStart } from "./routines/sleepStart.js";
+import { gentleWakeUp } from "./routines/gentleWakeUp.js";
+import { transitionToWhite } from "./routines/transitionToWhite.js";
+import { lighsOff } from "./routines/lightsOff.js";
 
 export const deskLight = process.env.DEVICE_ID_DESK;
 export const bedLight = process.env.DEVICE_ID_BED;
@@ -44,7 +44,6 @@ async function processTaskQueue() {
   // dequeue the next task, generate it, and assign it as the current task.
   while (!currentTask && taskQueue.length > 0) {
     currentTask = await taskQueue[0].generate();
-    console.log("Popping task!", currentTask);
     taskQueue.shift();
   }
 
@@ -53,7 +52,6 @@ async function processTaskQueue() {
     const taskComplete = await currentTask.step();
     // If the task has been completed, clear the current task.
     if (taskComplete) {
-      console.log("Task complete!");
       currentTask = null;
     }
   } else {
@@ -74,16 +72,20 @@ app.post("/api/event", express.json(), async (request, response) => {
   switch (eventUppercase) {
     case "SLEEP_TRACKING_STOPPED":
     case "ALARM_ALERT_DISMISS":
+    case "ALARM_ALERT_START":
       console.log("Woke up! ", event);
-      alarmStopped();
+      transitionToWhite(60);
       break;
     case "SLEEP_TRACKING_STARTED":
       console.log("Starting sleep! ", event);
-      sleepStart();
+      lighsOff();
       break;
     case "SMART_PERIOD":
       console.log("Alarm soon! ", event);
-      doWakeUp();
+      gentleWakeUp();
+      break;
+    case "TIME_TO_BED_ALARM_ALERT":
+      console.log("Time for bed! ", event);
       break;
     default:
       console.log("Unknown event!", event);

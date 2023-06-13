@@ -14,22 +14,24 @@ import { getDeviceStatus } from "../tuyaCommands.js";
 import { getProperty } from "../utils/utils.js";
 import { QueuedCommand } from "../custom_commands/Command.js";
 
-export async function alarmStopped() {
+export async function transitionToWhite(totalTime) {
   cancelTask();
   addtoQueue(
-    new QueuedCommand(deskLight, [
-      { code: "switch_led", value: true },
-    ])
+    new QueuedCommand(deskLight, [{ code: "switch_led", value: true }])
   );
   addtoQueue(
-    new QueuedCommand(bedLight, [
-      { code: "switch_led", value: true },
-    ])
+    new QueuedCommand(bedLight, [{ code: "switch_led", value: true }])
   );
   const deskData = await getDeviceStatus(deskLight);
-  const deskWorkMode = getProperty(deskData, "work_mode")
-  const deskBrightness = deskWorkMode === "white" ? getProperty(deskData, "bright_value_v2") : hues.MIN_BRIGHTNESS;
-  const deskTemperature = deskWorkMode === "white" ? getProperty(deskData, "temp_value_v2") : hues.MIN_TEMPERATURE;
+  const deskWorkMode = getProperty(deskData, "work_mode");
+  const deskBrightness =
+    deskWorkMode === "white"
+      ? getProperty(deskData, "bright_value_v2")
+      : hues.MIN_BRIGHTNESS;
+  const deskTemperature =
+    deskWorkMode === "white"
+      ? getProperty(deskData, "temp_value_v2")
+      : hues.MIN_TEMPERATURE;
   if (
     deskBrightness < hues.MAX_BRIGHTNESS ||
     deskTemperature < hues.MAX_TEMPERATURE
@@ -41,7 +43,7 @@ export async function alarmStopped() {
     addtoQueue(
       new QueuedTransition(
         deskLight,
-        30,
+        totalTime / 2,
         WhiteTransition,
         { ...deskState },
         { ...hues.BRIGHT_WHITE }
@@ -49,9 +51,15 @@ export async function alarmStopped() {
     );
   }
   const bedData = await getDeviceStatus(bedLight);
-  const bedWorkMode = getProperty(bedData, "work_mode")
-  const bedBrightness = bedWorkMode === "white" ? getProperty(bedData, "bright_value_v2") : hues.MIN_BRIGHTNESS;
-  const bedTemperature = bedWorkMode === "white" ? getProperty(bedData, "temp_value_v2") : hues.MIN_TEMPERATURE;
+  const bedWorkMode = getProperty(bedData, "work_mode");
+  const bedBrightness =
+    bedWorkMode === "white"
+      ? getProperty(bedData, "bright_value_v2")
+      : hues.MIN_BRIGHTNESS;
+  const bedTemperature =
+    bedWorkMode === "white"
+      ? getProperty(bedData, "temp_value_v2")
+      : hues.MIN_TEMPERATURE;
   if (
     bedBrightness < hues.MAX_BRIGHTNESS ||
     bedTemperature < hues.MAX_TEMPERATURE
@@ -63,7 +71,7 @@ export async function alarmStopped() {
     addtoQueue(
       new QueuedTransition(
         bedLight,
-        30,
+        totalTime / 2,
         WhiteTransition,
         { ...bedState },
         { ...hues.BRIGHT_WHITE }

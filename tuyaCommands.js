@@ -35,10 +35,7 @@ export async function getDeviceStatus(deviceID) {
 
   const response = await tuyaContext.request(command);
   if (!response.success) {
-    console.log(
-      `Could not get status for device ${deviceID}! \nResponse: `,
-      response
-    );
+    throw new Error(`Could not get status for device ${deviceID}! Response: ${JSON.stringify(response)}`);
   }
   return response.result;
 }
@@ -47,7 +44,7 @@ export async function getDeviceStatus(deviceID) {
  * Sends a command to a device.
  *
  * @param {string} deviceID - The ID of the device.
- * @param {Object} commandBody - The command body containing the instructions.
+ * @param {Object} commands - The command body containing the instructions.
  * @returns {Promise} - A promise that resolves when the device command is sent.
  */
 export async function sendDeviceCommands(deviceID, commands) {
@@ -60,17 +57,12 @@ export async function sendDeviceCommands(deviceID, commands) {
   };
 
   const response = await tuyaContext.request(command);
-
   if (!response.success) {
-    console.log(
-      "Command failed!\Commands: ",
-      commands,
-      "\nResponse: ",
-      response
-    );
+    throw new Error(`Command failed for device ${deviceID}! Commands: ${JSON.stringify(commands)}\nResponse: ${JSON.stringify(response)}`);
   }
   return response;
 }
+
 /**
  * Toggles the light status of a device.
  *
