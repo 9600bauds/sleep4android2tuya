@@ -1,19 +1,19 @@
 import * as hues from "../utils/hues.js";
-import { QueuedTransition } from "../custom_commands/Transition.js";
 import {
   ColoredTransition,
   WhiteTransition,
+  QueuedTransition
 } from "../custom_commands/Transition.js";
 import { QueuedCommand } from "../custom_commands/Command.js";
-import { QueuedSwap } from "../custom_commands/LightSwap.js";
-import { QueuedReset } from "../custom_commands/LightReset.js";
 import {
   busy,
-  taskQueue,
+  addtoQueue,
   bedLight,
   deskLight,
   startTaskQueue,
 } from "../index.js";
+
+let timeUnit = 1;
 
 export async function doWakeUp() {
   if (busy()) {
@@ -22,69 +22,64 @@ export async function doWakeUp() {
   }
   console.log("Starting wakeup...");
 
-  taskQueue.push(new QueuedReset(bedLight));
-  taskQueue.push(new QueuedReset(deskLight));
-  taskQueue.push(
-    //Just wait for a little bit here
-    new QueuedCommand(bedLight, []),
-    new QueuedCommand(bedLight, []),
-    new QueuedCommand(bedLight, [])
+  addtoQueue(
+    new QueuedCommand(deskLight, [
+      { code: "bright_value_v2", value: hues.MIN_BRIGHTNESS },
+      { code: "colour_data_v2", value: { h: hues.HUE_ORANGE, s: hues.MAX_SATURATION, v: hues.MID_BRIGHTNESS } },
+      { code: "switch_led", value: true },
+    ])
   );
-  taskQueue.push(
-    new QueuedCommand(deskLight, [{ code: "switch_led", value: true }])
+  addtoQueue(
+    new QueuedCommand(bedLight, [
+      { code: "bright_value_v2", value: hues.MIN_BRIGHTNESS },
+      { code: "colour_data_v2", value: { h: hues.HUE_ORANGE, s: hues.MAX_SATURATION, v: hues.MID_BRIGHTNESS } },
+      { code: "switch_led", value: true },
+    ])
   );
-  taskQueue.push(
+  addtoQueue(
     new QueuedTransition(
       deskLight,
-      5,
+      60*2 * timeUnit,
       ColoredTransition,
       { ...hues.DULL_ORANGE },
       { ...hues.BRIGHT_ORANGE }
     )
   );
-  taskQueue.push(
-    new QueuedCommand(bedLight, [{ code: "switch_led", value: true }])
-  );
-  taskQueue.push(
+  addtoQueue(
     new QueuedTransition(
       bedLight,
-      5,
+      60*2 * timeUnit,
       ColoredTransition,
       { ...hues.DULL_ORANGE, saturation: hues.MID_SATURATION },
       { ...hues.BRIGHT_ORANGE }
     )
   );
-  taskQueue.push(new QueuedSwap(deskLight, bedLight));
-  taskQueue.push(
+  addtoQueue(
     new QueuedTransition(
       deskLight,
-      5,
+      60*5 * timeUnit,
       WhiteTransition,
       { ...hues.DIM_WHITE },
       { ...hues.MID_WHITE }
     )
   );
-  taskQueue.push(
+  addtoQueue(
     new QueuedTransition(
       deskLight,
-      5,
+      60*10 * timeUnit,
       WhiteTransition,
       { ...hues.MID_WHITE },
       { ...hues.BRIGHT_WHITE }
     )
   );
-  taskQueue.push(
-    new QueuedCommand(bedLight, [{ code: "switch_led", value: true }])
-  );
-  taskQueue.push(
+  addtoQueue(
     new QueuedTransition(
       bedLight,
-      5,
+      60*10 * timeUnit,
       WhiteTransition,
       { ...hues.DIM_WHITE, temperature: hues.MID_TEMPERATURE },
       { ...hues.BRIGHT_WHITE }
     )
   );
-
   startTaskQueue();
 }

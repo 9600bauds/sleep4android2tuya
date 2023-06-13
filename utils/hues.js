@@ -8,10 +8,10 @@ export const HUE_PURPLE = 270;
 export const HUE_MAGENTA = 300;
 
 export const MIN_BRIGHTNESS = 10;
-export const MID_BRIGHTNESS = 100;
+export const MID_BRIGHTNESS = 150;
 export const MAX_BRIGHTNESS = 1000;
 export const MIN_SATURATION = 10; //mostly just white
-export const MID_SATURATION = 800;
+export const MID_SATURATION = 900;
 export const MAX_SATURATION = 1000;
 export const MIN_TEMPERATURE = 10; //orange-ish light
 export const MID_TEMPERATURE = 100;
