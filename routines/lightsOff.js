@@ -7,13 +7,10 @@ import {
 } from "../index.js";
 import { QueuedReset } from "../custom_commands/LightReset.js";
 
-export async function lighsOff() {
+export async function lighsOff(deviceIDs) {
   cancelTask();
   addtoQueue(
-    new QueuedReset(bedLight),
-  );
-  addtoQueue(
-    new QueuedReset(deskLight),
+    new QueuedReset(deviceIDs),
   );
   startTaskQueue();
 }

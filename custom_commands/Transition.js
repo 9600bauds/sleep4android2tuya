@@ -2,8 +2,8 @@ import { setWhiteLight, setColorLight } from "../tuyaCommands.js";
 import { lerp } from "../utils/utils.js";
 
 export class Transition {
-  constructor(deviceID, startState, endState) {
-    this.deviceID = deviceID;
+  constructor(deviceIDs, startState, endState) {
+    this.deviceIDs = deviceIDs;
     this.startState = startState;
     this.endState = endState;
   }
@@ -20,7 +20,7 @@ export class ColoredTransition extends Transition {
 
     if (timeFraction >= 1) {
       await setColorLight(
-        this.deviceID,
+        this.deviceIDs,
         this.endState.hue,
         this.endState.saturation,
         this.endState.brightness
@@ -39,7 +39,7 @@ export class ColoredTransition extends Transition {
         timeFraction
       );
 
-      await setColorLight(this.deviceID, newHue, newSaturation, newBrightness);
+      await setColorLight(this.deviceIDs, newHue, newSaturation, newBrightness);
       return false;
     }
   }
@@ -52,7 +52,7 @@ export class WhiteTransition extends Transition {
 
     if (timeFraction >= 1) {
       await setWhiteLight(
-        this.deviceID,
+        this.deviceIDs,
         this.endState.brightness,
         this.endState.temperature
       );
@@ -68,7 +68,7 @@ export class WhiteTransition extends Transition {
         this.endState.temperature,
         timeFraction
       );
-      await setWhiteLight(this.deviceID, newBrightness, newTemperature);
+      await setWhiteLight(this.deviceIDs, newBrightness, newTemperature);
       return false;
     }
   }
@@ -76,14 +76,14 @@ export class WhiteTransition extends Transition {
 
 export class QueuedTransition {
   /**
-   * @param {string} deviceID - The ID of the device on which the transition will be applied.
+   * @param {string[]} deviceIDs - The IDs of the devices.
    * @param {number} duration - The duration of the transition in milliseconds.
    * @param {Function} transitionClass - The class representing the type of transition.
    * @param {Object} startState - The initial state of the transition.
    * @param {Object} endState - The final state of the transition.
    */
-  constructor(deviceID, duration, transitionClass, startState, endState) {
-    this.deviceID = deviceID;
+  constructor(deviceIDs, duration, transitionClass, startState, endState) {
+    this.deviceIDs = deviceIDs;
     this.duration = duration;
     this.transitionClass = transitionClass;
     this.startState = startState;
@@ -105,7 +105,7 @@ export class QueuedTransition {
     }
 
     return new this.transitionClass(
-      this.deviceID,
+      this.deviceIDs,
       this.startState,
       this.endState
     );

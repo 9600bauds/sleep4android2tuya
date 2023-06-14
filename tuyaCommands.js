@@ -35,7 +35,11 @@ export async function getDeviceStatus(deviceID) {
 
   const response = await tuyaContext.request(command);
   if (!response.success) {
-    throw new Error(`Could not get status for device ${deviceID}! Response: ${JSON.stringify(response)}`);
+    throw new Error(
+      `Could not get status for device ${deviceID}! Response: ${JSON.stringify(
+        response
+      )}`
+    );
   }
   return response.result;
 }
@@ -45,7 +49,6 @@ export async function getDeviceStatus(deviceID) {
  *
  * @param {string} deviceID - The ID of the device.
  * @param {Object} commands - The command body containing the instructions.
- * @returns {Promise} - A promise that resolves when the device command is sent.
  */
 export async function sendDeviceCommands(deviceID, commands) {
   const command = {
@@ -58,57 +61,79 @@ export async function sendDeviceCommands(deviceID, commands) {
 
   const response = await tuyaContext.request(command);
   if (!response.success) {
-    throw new Error(`Command failed for device ${deviceID}! Commands: ${JSON.stringify(commands)}\nResponse: ${JSON.stringify(response)}`);
+    throw new Error(
+      `Command failed for device ${deviceID}! Commands: ${JSON.stringify(
+        commands
+      )}\nResponse: ${JSON.stringify(response)}`
+    );
   }
   return response;
 }
 
 /**
- * Toggles the light status of a device.
+ * Sends a command to multiple devices.
  *
- * @param {string} deviceID - The ID of the device.
- * @param {boolean} isLightOn - Specifies whether the light should be turned on (true) or off (false).
- * @returns {Promise} - A promise that resolves when the device command is sent.
+ * @param {string[]} deviceIDs - The IDs of the devices.
+ * @param {Object} commandBody - The command body containing the instructions.
  */
-export async function toggleLight(deviceID, isLightOn) {
-  return sendDeviceCommands(deviceID, [
+export async function sendDeviceCommandsToMany(deviceIDs, commands) {
+  // Map each deviceID to a call to sendDeviceCommands
+  const promises = deviceIDs.map((deviceID) =>
+    sendDeviceCommands(deviceID, commands)
+  );
+
+  // Wait for all promises to resolve or reject
+  const responses = await Promise.all(promises);
+
+  return responses;
+}
+
+/**
+ * Toggles the light status of multiple devices.
+ *
+ * @param {string[]} deviceIDs - The IDs of the devices.
+ * @param {boolean} isLightOn - Specifies whether the light should be turned on (true) or off (false).
+ */
+export async function toggleLight(deviceIDs, isLightOn) {
+  return sendDeviceCommandsToMany(deviceIDs, [
     { code: "switch_led", value: isLightOn },
   ]);
 }
+
 /**
- * Sets the device to white light mode.
+ * Sets the devices to white light mode.
  *
- * @param {string} deviceID - The ID of the device.
+ * @param {string[]} deviceIDs - The IDs of the devices.
  * @param {number} brightness - The brightness value ranging from 10 to 1000.
  * @param {number} temperature - The temperature value ranging from 10 to 1000.
  *                               Minimum temperature represents incandescent light (orange-ish),
  *                               while the maximum temperature represents daylight (white).
- * @returns {Promise} - A promise that resolves when the device command is sent.
  */
-export async function setWhiteLight(deviceID, brightness, temperature) {
+export async function setWhiteLight(deviceIDs, brightness, temperature) {
   const roundedBrightness = Math.round(brightness);
   const roundedTemperature = Math.round(temperature);
 
-  return sendDeviceCommands(deviceID, [
+  return sendDeviceCommandsToMany(deviceIDs, [
     { code: "bright_value_v2", value: roundedBrightness },
     { code: "temp_value_v2", value: roundedTemperature },
   ]);
 }
+
 /**
  * Sets the device to colored light mode.
  *
- * @param {string} deviceID - The ID of the device.
+ * @param {string[]} deviceIDs - The IDs of the devices.
  * @param {number} hue - The hue value ranging from 0 to 360.
  * @param {number} [saturation=1000] - The saturation value ranging from 10 to 1000.
  * @param {number} [brightness=1000] - The brightness value ranging from 10 to 1000.
  * @returns {Promise} - A promise that resolves when the device command is sent.
  */
-export async function setColorLight(deviceID, hue, saturation, brightness) {
+export async function setColorLight(deviceIDs, hue, saturation, brightness) {
   const roundedHue = Math.round(hue);
   const roundedSaturation = Math.round(saturation || 1000);
   const roundedBrightness = Math.round(brightness || 1000);
 
-  return sendDeviceCommands(deviceID, [
+  return sendDeviceCommandsToMany(deviceIDs, [
     {
       code: "colour_data_v2",
       value: {
@@ -123,18 +148,13 @@ export async function setColorLight(deviceID, hue, saturation, brightness) {
 /**
  * Turns the light off and sets all brightness values to minimum.
  *
- * @param {string} deviceID - The ID of the device.
+ * @param {string[]} deviceIDs - The IDs of the devices.
  * @returns {Promise} - A promise that resolves when the device command is sent.
  */
-export async function resetLight(deviceID) {
-  return sendDeviceCommands(deviceID, [
+export async function resetLight(deviceIDs) {
+  return sendDeviceCommandsToMany(deviceIDs, [
     { code: "switch_led", value: false },
     { code: "colour_data_v2", value: { h: hues.HUE_ORANGE, s: 1000, v: 10 } },
     { code: "bright_value_v2 ", value: 10 },
   ]);
-}
-
-export async function doTheSwap(deviceID1, deviceID2) {
-  resetLight(deviceID2);
-  return setWhiteLight(deviceID1, 10, 10);
 }

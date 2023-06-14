@@ -1,22 +1,22 @@
 import { resetLight } from "../tuyaCommands.js";
 
 class LightReset {
-  constructor(deviceID) {
-    this.deviceID = deviceID;
+  constructor(deviceIDs) {
+    this.deviceIDs = deviceIDs;
   }
 
   async step() {
-    resetLight(this.deviceID);
+    resetLight(this.deviceIDs);
     return true;
   }
 }
 
 export class QueuedReset {
-  constructor(deviceID) {
-    this.deviceID = deviceID;
+  constructor(deviceIDs) {
+    this.deviceIDs = deviceIDs;
   }
 
   async generate() {
-    return new LightReset(this.deviceID);
+    return new LightReset(this.deviceIDs);
   }
 }

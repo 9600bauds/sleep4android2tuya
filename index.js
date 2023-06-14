@@ -5,12 +5,16 @@ app.use(express.json());
 import dotenv from "dotenv";
 dotenv.config();
 
+import * as hues from "./utils/hues.js";
+
 import { gentleWakeUp } from "./routines/gentleWakeUp.js";
-import { transitionToWhite } from "./routines/transitionToWhite.js";
 import { lighsOff } from "./routines/lightsOff.js";
+import { transitionManyToWhite } from "./routines/transitionManyToWhite.js";
+import { getAverageWhiteState } from "./utils/getAverageWhiteState.js";
 
 export const deskLight = process.env.DEVICE_ID_DESK;
 export const bedLight = process.env.DEVICE_ID_BED;
+export const allLights = [deskLight, bedLight];
 
 const TICK_RATE = 1000; //Time in miliseconds between each refresh
 
@@ -74,25 +78,39 @@ app.post("/api/event", express.json(), async (request, response) => {
     case "ALARM_ALERT_DISMISS":
     case "ALARM_ALERT_START":
       console.log("Woke up! ", event);
-      transitionToWhite(60);
+      response.status(202).send();
+      transitionManyToWhite(
+        allLights,
+        30,
+        await getAverageWhiteState(allLights),
+        hues.BRIGHT_WHITE
+      );
       break;
     case "SLEEP_TRACKING_STARTED":
+      response.status(202).send();
       console.log("Starting sleep! ", event);
-      lighsOff();
+      lighsOff(allLights);
       break;
     case "SMART_PERIOD":
+      response.status(202).send();
       console.log("Alarm soon! ", event);
-      gentleWakeUp();
+      gentleWakeUp(60*15);
       break;
     case "TIME_TO_BED_ALARM_ALERT":
+      response.status(202).send();
       console.log("Time for bed! ", event);
+      transitionManyToWhite(
+        allLights,
+        60*30,
+        await getAverageWhiteState(allLights),
+        hues.DIM_WHITE
+      );
       break;
     default:
       console.log("Unknown event!", event);
-      response.status(400);
+      response.status(400).send();
       return;
   }
-  response.status(202);
 });
 
 const PORT = process.env.PORT || 3001;

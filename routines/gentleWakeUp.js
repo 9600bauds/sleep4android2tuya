@@ -22,37 +22,26 @@ export async function gentleWakeUp(totalTime) {
 
   let onetenth = totalTime / 10;
   addtoQueue(
-    new QueuedCommand(deskLight, [
-      { code: "bright_value_v2", value: hues.MIN_BRIGHTNESS },
-      {
-        code: "colour_data_v2",
-        value: {
-          h: hues.HUE_ORANGE,
-          s: hues.MAX_SATURATION,
-          v: hues.MID_BRIGHTNESS,
+    new QueuedCommand(
+      [deskLight, bedLight],
+      [
+        { code: "bright_value_v2", value: hues.MIN_BRIGHTNESS },
+        {
+          code: "colour_data_v2",
+          value: {
+            h: hues.HUE_ORANGE,
+            s: hues.MAX_SATURATION,
+            v: hues.MIN_BRIGHTNESS,
+          },
         },
-      },
-      { code: "switch_led", value: true },
-    ])
-  );
-  addtoQueue(
-    new QueuedCommand(bedLight, [
-      { code: "bright_value_v2", value: hues.MIN_BRIGHTNESS },
-      {
-        code: "colour_data_v2",
-        value: {
-          h: hues.HUE_ORANGE,
-          s: hues.MAX_SATURATION,
-          v: hues.MID_BRIGHTNESS,
-        },
-      },
-      { code: "switch_led", value: true },
-    ])
+        { code: "switch_led", value: true },
+      ]
+    )
   );
   addtoQueue(
     new QueuedTransition(
-      deskLight,
-      onetenth / 2,
+      [deskLight, bedLight],
+      onetenth,
       ColoredTransition,
       { ...hues.DULL_ORANGE },
       { ...hues.BRIGHT_ORANGE }
@@ -60,17 +49,8 @@ export async function gentleWakeUp(totalTime) {
   );
   addtoQueue(
     new QueuedTransition(
-      bedLight,
-      onetenth / 2,
-      ColoredTransition,
-      { ...hues.DULL_ORANGE, saturation: hues.MID_SATURATION },
-      { ...hues.BRIGHT_ORANGE }
-    )
-  );
-  addtoQueue(
-    new QueuedTransition(
-      deskLight,
-      onetenth,
+      [deskLight],
+      onetenth * 2,
       WhiteTransition,
       { ...hues.DIM_WHITE },
       { ...hues.MID_WHITE }
@@ -78,19 +58,19 @@ export async function gentleWakeUp(totalTime) {
   );
   addtoQueue(
     new QueuedTransition(
-      deskLight,
-      onetenth * 4,
+      [bedLight],
+      onetenth * 2,
       WhiteTransition,
-      { ...hues.MID_WHITE },
-      { ...hues.BRIGHT_WHITE }
+      { ...hues.DIM_WHITE },
+      { ...hues.MID_WHITE }
     )
   );
   addtoQueue(
     new QueuedTransition(
-      bedLight,
-      onetenth * 4,
+      [deskLight, bedLight],
+      onetenth * 5,
       WhiteTransition,
-      { ...hues.DIM_WHITE, temperature: hues.MID_TEMPERATURE },
+      { ...hues.MID_WHITE },
       { ...hues.BRIGHT_WHITE }
     )
   );
