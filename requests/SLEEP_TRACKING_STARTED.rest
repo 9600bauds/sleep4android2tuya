@@ -1,0 +1,6 @@
+POST http://localhost:3001/api/event/
+content-type: application/json
+
+{ 
+    "event": "SLEEP_TRACKING_STARTED"
+}

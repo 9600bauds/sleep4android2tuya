@@ -1,0 +1,6 @@
+POST http://localhost:3001/api/event/
+content-type: application/json
+
+{ 
+    "event": "TIME_TO_BED_ALARM_ALERT"
+}
