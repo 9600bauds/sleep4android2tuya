@@ -1,5 +1,6 @@
 import { getDeviceStatus } from "../tuyaCommands.js";
 import { getProperty } from "./utils.js";
+import * as hues from "./hues.js"
 
 export async function getAverageWhiteState(deviceIDs) {
   const deviceStatuses = await Promise.all(deviceIDs.map(getDeviceStatus));

@@ -8,6 +8,7 @@ import { QueuedCommand } from "../custom_commands/Command.js";
 import {
   busy,
   addtoQueue,
+  allLights,
   bedLight,
   deskLight,
   startTaskQueue,
@@ -23,7 +24,7 @@ export async function gentleWakeUp(totalTime) {
   let onetenth = totalTime / 10;
   addtoQueue(
     new QueuedCommand(
-      [deskLight, bedLight],
+      allLights,
       [
         { code: "bright_value_v2", value: hues.MIN_BRIGHTNESS },
         {
@@ -40,7 +41,7 @@ export async function gentleWakeUp(totalTime) {
   );
   addtoQueue(
     new QueuedTransition(
-      [deskLight, bedLight],
+      allLights,
       onetenth,
       ColoredTransition,
       { ...hues.DULL_ORANGE },
@@ -67,7 +68,7 @@ export async function gentleWakeUp(totalTime) {
   );
   addtoQueue(
     new QueuedTransition(
-      [deskLight, bedLight],
+      allLights,
       onetenth * 5,
       WhiteTransition,
       { ...hues.MID_WHITE },

@@ -11,6 +11,7 @@ import { gentleWakeUp } from "./routines/gentleWakeUp.js";
 import { lighsOff } from "./routines/lightsOff.js";
 import { transitionManyToWhite } from "./routines/transitionManyToWhite.js";
 import { getAverageWhiteState } from "./utils/getAverageWhiteState.js";
+import { gentleGoToSleep } from "./routines/gentleGoToSleep.js";
 
 export const deskLight = process.env.DEVICE_ID_DESK;
 export const bedLight = process.env.DEVICE_ID_BED;
@@ -94,17 +95,12 @@ app.post("/api/event", express.json(), async (request, response) => {
     case "SMART_PERIOD":
       response.status(202).send();
       console.log("Alarm soon! ", event);
-      gentleWakeUp(60*15);
+      gentleWakeUp(60 * 15);
       break;
     case "TIME_TO_BED_ALARM_ALERT":
       response.status(202).send();
       console.log("Time for bed! ", event);
-      transitionManyToWhite(
-        allLights,
-        60*30,
-        await getAverageWhiteState(allLights),
-        hues.DIM_WHITE
-      );
+      gentleGoToSleep(60 * 15);
       break;
     default:
       console.log("Unknown event!", event);
